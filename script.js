@@ -2,6 +2,30 @@ var cityArr=["Toronto", "Ottawa"];
 $(document).ready(function()
 {
     $("#currentDay").text("Today's Date: "+moment().format("Do MMM, YYYY"));   
+    
+        // Geo-location
+        var options = {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0
+    };
+    
+    function success(pos) {
+        var crd = pos.coords;
+    
+        // console.log(pos);
+        // console.log('Your current position is:');
+        // console.log(`Latitude : ${crd.latitude}`);
+        // console.log(`Longitude: ${crd.longitude}`);
+        // console.log(`More or less ${crd.accuracy} meters.`);
+    }
+    
+    function error(err) {
+        console.warn(`ERROR(${err.code}): ${err.message}`);
+    }
+    
+    navigator.geolocation.getCurrentPosition(success, error, options);
+    
     init();
     
     // When City Search button is clicked
@@ -13,10 +37,10 @@ $(document).ready(function()
         $(".humidity").empty();
         $(".wind").empty();  
         $(".wOutlook").empty();  
-        var APIKey = "06b37d6fec0ce462c64fc48a6475082d";
+        
         varCity="";
 
-        var varCity=$("#city-name").val();    
+        var varCity=$("#city-name").val().trim();    
         if(varCity) // perform the following steps only if a City value is provided
         {   
             var varUnique=true;
@@ -32,43 +56,56 @@ $(document).ready(function()
                 localStorage.setItem("cityList", JSON.stringify(cityArr)); 
                 init();
             }
-            
-            // Here we are building the URL we need to query the database    
-            var queryURL = "https://api.openweathermap.org/data/2.5/weather?q="+varCity+"&appid=" + APIKey;
-        
-            // Here is the AJAX call
-            $.ajax({
-                url: queryURL,
-                method: "GET"
-            }).then(function(response) 
-            {      
-                var varCity=$("<h2>").text("City: "+response.name+", "+response.sys.country);
-                var varWind=$("<h2>").text("Wind Speed: "+response.wind.speed+" Knots");
-                var varHumidity=$("<h2>").text("Humidity: "+response.main.humidity+" gms/cubic meter");
-                //   var varUVee=$("<h2>").text("UV Index: "+response.main.temp);
-                var varKelvin=parseInt(response.main.temp);
-                var varCgrade=(varKelvin -273.15).toFixed(2);
-                var varTempC=$("<h2>").text("Temperature (c): "+varCgrade);
-                var varOutlook=$("<h2>").text("Weather Conditions: "+response.weather[0].description);
-
-                // This code transfers content to HTML
-                $(".city").append(varCity);
-                $(".temp").append(varTempC);
-                $(".humidity").append(varHumidity);
-                $(".wind").append(varWind);  
-                $(".wOutlook").append(varOutlook);    
-                // $(".uVee").append(varUVee);            
-
-                varCity="";
-            }); // ajax
+            cityCurrent(varCity);  // Function displays the current conditions for the selected city            
         } // if
     }); // btn-click    
+    $(".btn-city-row").on("click", function()
+    {
+        var tempCity=$(this).text();        
+        cityCurrent(tempCity);
+    });
 });
-$(".btn-city.row").on("click", function()
+
+function cityCurrent(prevCity)
 {
-    console.log("inside btn-city-row");
-    console.log(this);
-});
+    var APIKey = "06b37d6fec0ce462c64fc48a6475082d";
+    varCity=prevCity;
+    var queryURL = "https://api.openweathermap.org/data/2.5/weather?q="+varCity+"&appid=" + APIKey;
+
+    // Clear HTML of previous values
+    $(".city").empty();
+    $(".temp").empty();
+    $(".humidity").empty();
+    $(".wind").empty();  
+    $(".wOutlook").empty();  
+        
+    // Here is the AJAX call
+    $.ajax({
+        url: queryURL,
+        method: "GET"
+    }).then(function(response) 
+    {      
+        var varCity=$("<h2>").text("City: "+response.name+", "+response.sys.country);
+        var varWind=$("<h2>").text("Wind Speed: "+response.wind.speed+" Knots");
+        var varHumidity=$("<h2>").text("Humidity: "+response.main.humidity+" gms/cubic meter");
+        //   var varUVee=$("<h2>").text("UV Index: "+response.main.temp);
+        var varKelvin=parseInt(response.main.temp);
+        var varCgrade=(varKelvin -273.15).toFixed(2);
+        var varTempC=$("<h2>").text("Temperature (c): "+varCgrade);
+        var varOutlook=$("<h2>").text("Weather Conditions: "+response.weather[0].description);
+
+        // This code transfers content to HTML
+        $(".city").append(varCity);
+        $(".temp").append(varTempC);
+        $(".humidity").append(varHumidity);
+        $(".wind").append(varWind);  
+        $(".wOutlook").append(varOutlook);    
+        // $(".uVee").append(varUVee);            
+
+        varCity="";
+    }); // ajax
+} // cityCurrent function
+
 function init() 
 {
     // Get stored appointments from localStorage     
@@ -81,7 +118,7 @@ function init()
     {
         localStorage.setItem("cityList", JSON.stringify(cityArr));      
     }   
-  showHistory(); 
+    showHistory(); 
 }
 //----------------
 function showHistory() // Function shows city history from the DOM
