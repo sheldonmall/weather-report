@@ -64,6 +64,6 @@ There is no need for any license at the moment to use my website.
 
 My website is simple to use. 
 
-The website is fully working and I am  able to complete all requirements. Initially I struggled with the .on("click" function to select a city and display the weather connditions for that city. I sought help from my TA and tutor to help me get this right.
+The website is fully working, except I could not devote more time to display UV Index and 5-day forecast due to project we are working on. Initially I struggled with the .on("click" function to select a city from the history list and display the weather connditions for that city. I kept trying and finally got it to work.
 
 I will continue to improve the code work after this assignment is submitted.
